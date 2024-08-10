@@ -1,5 +1,5 @@
 const { body, validationResult } = require('express-validator');
-const  ApiResponse  = require('../models/ApiResponse');
+const  ApiResponse  = require('../utils/ApiResponse');
 
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
@@ -74,8 +74,26 @@ const validateUpdateUser = [
     handleValidationErrors
 ];
 
+const validateCreateUser = [
+    body('firstname')
+        .trim()
+        .notEmpty().withMessage('First name is required')
+        .isLength({ min: 2 }).withMessage('First name must be at least 2 characters long')
+        .matches(/^[א-תa-zA-Z0-9\s]+$/).withMessage('First name contains invalid characters'),
+    body('lastname')
+        .trim()
+        .notEmpty().withMessage('Last name is required')
+        .isLength({ min: 2 }).withMessage('Last name must be at least 2 characters long')
+        .matches(/^[א-תa-zA-Z0-9\s]+$/).withMessage('Last name contains invalid characters'),
+    body('email')
+        .trim()
+        .isEmail().withMessage('Email is not valid')
+        .normalizeEmail()
+];
+
 module.exports = {
     validateRegister,
     validateLogin,
     validateUpdateUser,
+    validateCreateUser
 };

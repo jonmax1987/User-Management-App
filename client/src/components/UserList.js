@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUsers } from '../api/user';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Typography, Container, Paper, Alert } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Typography, Container, Paper, Alert, Button } from '@mui/material';
+import { Edit, Delete, Add } from '@mui/icons-material';
 import EditUserForm from './EditUserForm';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import AddUserForm from './AddUserForm';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isAddOpen, setIsAddOpen] = useState(false);
 
     const loadUsers = async () => {
         try {
@@ -41,6 +43,10 @@ const UserList = () => {
         setIsDeleteOpen(true);
     };
 
+    const handleAddClick = () => {
+        setIsAddOpen(true);
+    };
+
     const handleCloseEdit = () => {
         setIsEditOpen(false);
         setSelectedUser(null);
@@ -53,6 +59,11 @@ const UserList = () => {
         await loadUsers();
     };
 
+    const handleCloseAdd = () => {
+        setIsAddOpen(false);
+        loadUsers(); 
+    };
+
     return (
         <Container>
             <Typography variant="h4" gutterBottom>
@@ -61,35 +72,46 @@ const UserList = () => {
             {error ? (
                 <Alert severity="error">{error}</Alert>
             ) : (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="left">First Name</TableCell>
-                                <TableCell align="left">Last Name</TableCell>
-                                <TableCell align="left">Email</TableCell>
-                                <TableCell align="right">Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {users.map(user => (
-                                <TableRow key={user.id}>
-                                    <TableCell>{user.firstname}</TableCell>
-                                    <TableCell>{user.lastname}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell align="right">
-                                        <IconButton onClick={() => handleEditClick(user)} color="primary">
-                                            <Edit />
-                                        </IconButton>
-                                        <IconButton onClick={() => handleDeleteClick(user)} color="secondary">
-                                            <Delete />
-                                        </IconButton>
-                                    </TableCell>
+                <>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add />}
+                        onClick={handleAddClick}
+                        style={{ marginBottom: '20px' }}
+                    >
+                        Add User
+                    </Button>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="left">First Name</TableCell>
+                                    <TableCell align="left">Last Name</TableCell>
+                                    <TableCell align="left">Email</TableCell>
+                                    <TableCell align="right">Actions</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                            </TableHead>
+                            <TableBody>
+                                {users.map(user => (
+                                    <TableRow key={user.id}>
+                                        <TableCell>{user.firstname}</TableCell>
+                                        <TableCell>{user.lastname}</TableCell>
+                                        <TableCell>{user.email}</TableCell>
+                                        <TableCell align="right">
+                                            <IconButton onClick={() => handleEditClick(user)} color="primary">
+                                                <Edit />
+                                            </IconButton>
+                                            <IconButton onClick={() => handleDeleteClick(user)} color="secondary">
+                                                <Delete />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </>
             )}
 
             {selectedUser && (
@@ -107,6 +129,11 @@ const UserList = () => {
                     onClose={handleCloseDelete}
                 />
             )}
+
+            <AddUserForm
+                open={isAddOpen}
+                onClose={handleCloseAdd}
+            />
         </Container>
     );
 };

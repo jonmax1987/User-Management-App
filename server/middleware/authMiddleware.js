@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const ApiResponse = require('../models/ApiResponse');
+const ApiResponse = require('../utils/ApiResponse');
 const jwtSecret = process.env.JWT_SECRET; 
 
 // Function to generate a JWT token
