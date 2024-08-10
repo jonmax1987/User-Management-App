@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Typography } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
 import { createUser } from '../api/user';
+import { useSnackbar } from '../context/SnackbarContext';
+import UserFormFields from './UserFormFields';
 
 const AddUserForm = ({ open, onClose }) => {
-    const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm();
+    const { register, handleSubmit, formState: { errors }, setError, clearErrors, reset } = useForm(); 
     const [serverError, setServerError] = useState('');
+    const showSnackbar = useSnackbar();
 
     const onSubmit = async (data) => {
         clearErrors(); 
@@ -14,19 +17,16 @@ const AddUserForm = ({ open, onClose }) => {
             const response = await createUser(data);
 
             if (response.data.status === 'success') {
+                showSnackbar('User added successfully!', 'success');
+                reset(); 
                 onClose();
             } else if (response.data.status === 'fail') {
-                if (response.data.errors) {
-                    response.data.errors.forEach((err) => {
-                        setError(err.path, { type: 'server', message: err.msg });
-                    });
-                }
+                response.data.errors?.forEach(err => setError(err.path, { type: 'server', message: err.msg }));
                 setServerError(response.data.message);
             } else {
                 setServerError('Creation failed. Please try again.');
             }
         } catch (error) {
-            console.error('Failed to create user:', error);
             setServerError('Creation failed. Please try again.');
         }
     };
@@ -36,49 +36,7 @@ const AddUserForm = ({ open, onClose }) => {
             <DialogTitle>Add User</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="First Name"
-                        fullWidth
-                        {...register('firstname', { 
-                            required: 'First name is required', 
-                            pattern: {
-                                value: /^[A-Za-zא-ת]+$/,
-                                message: 'First name contains invalid characters'
-                            }
-                        })}
-                        error={!!errors.firstname}
-                        helperText={errors.firstname?.message}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Last Name"
-                        fullWidth
-                        {...register('lastname', { 
-                            required: 'Last name is required', 
-                            pattern: {
-                                value: /^[A-Za-zא-ת]+$/,
-                                message: 'Last name contains invalid characters'
-                            }
-                        })}
-                        error={!!errors.lastname}
-                        helperText={errors.lastname?.message}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Email"
-                        fullWidth
-                        {...register('email', {
-                            required: 'Email is required',
-                            pattern: {
-                                value: /^\S+@\S+$/,
-                                message: 'Invalid email address',
-                            }
-                        })}
-                        error={!!errors.email}
-                        helperText={errors.email?.message}
-                    />
+                    <UserFormFields register={register} errors={errors} clearErrors={clearErrors} />
                     {serverError && (
                         <Typography color="error" align="center" style={{ marginTop: '10px' }}>
                             {serverError}

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Typography } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
 import { updateUser } from '../api/user';
+import { useSnackbar } from '../context/SnackbarContext';
+import UserFormFields from './UserFormFields';
 
 const EditUserForm = ({ open, user, onClose }) => {
     const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors } = useForm();
     const [serverError, setServerError] = useState('');
+    const showSnackbar = useSnackbar();
 
     useEffect(() => {
         if (user) {
@@ -24,19 +27,15 @@ const EditUserForm = ({ open, user, onClose }) => {
             const response = await updateUser(user.id, data);
 
             if (response.data.status === 'success') {
+                showSnackbar('User updated successfully.', 'success');
                 onClose();
             } else if (response.data.status === 'fail') {
-                if (response.data.errors) {
-                    response.data.errors.forEach((err) => {
-                        setError(err.path, { type: 'server', message: err.msg });
-                    });
-                }
+                response.data.errors?.forEach(err => setError(err.path, { type: 'server', message: err.msg }));
                 setServerError(response.data.message);
             } else {                
                 setServerError('Update failed. Please try again.');
             }
         } catch (error) {
-            console.error('Failed to update user:', error);
             setServerError('Update failed. Please try again.');
         }
     };
@@ -46,49 +45,7 @@ const EditUserForm = ({ open, user, onClose }) => {
             <DialogTitle>Edit User</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="First Name"
-                        fullWidth
-                        {...register('firstname', { 
-                            required: 'First name is required', 
-                            pattern: {
-                                value: /^[A-Za-zא-ת]+$/,
-                                message: 'First name contains invalid characters'
-                            }
-                        })}
-                        error={!!errors.firstname}
-                        helperText={errors.firstname?.message}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Last Name"
-                        fullWidth
-                        {...register('lastname', { 
-                            required: 'Last name is required', 
-                            pattern: {
-                                value: /^[A-Za-zא-ת]+$/,
-                                message: 'Last name contains invalid characters'
-                            }
-                        })}
-                        error={!!errors.lastname}
-                        helperText={errors.lastname?.message}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Email"
-                        fullWidth
-                        {...register('email', {
-                            required: 'Email is required',
-                            pattern: {
-                                value: /^\S+@\S+$/,
-                                message: 'Invalid email address',
-                            }
-                        })}
-                        error={!!errors.email}
-                        helperText={errors.email?.message}
-                    />
+                    <UserFormFields register={register} errors={errors} clearErrors={clearErrors} />
                     {serverError && (
                         <Typography color="error" align="center" style={{ marginTop: '10px' }}>
                             {serverError}
