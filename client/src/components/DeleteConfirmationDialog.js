@@ -1,19 +1,19 @@
 import React from 'react';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 import { deleteUser } from '../api/user';
-import { useSnackbar } from '../context/SnackbarContext'; // ייבוא ה-Snackbar context
+import { useSnackbar } from '../context/SnackbarContext'; 
 
 const DeleteConfirmationDialog = ({ open, user, onClose }) => {
-    const showSnackbar = useSnackbar(); // שימוש בפונקציית ה-Snackbar הגלובלית
+    const showSnackbar = useSnackbar(); 
 
     const handleDelete = async () => {
         try {
             await deleteUser(user.id);
-            showSnackbar('User deleted successfully.', 'success'); // הצגת הודעת הצלחה
-            onClose(); // סגירת הדיאלוג מיד
+            showSnackbar('User deleted successfully.', 'success'); 
+            onClose(); 
         } catch (error) {
             console.error('Failed to delete user:', error);
-            showSnackbar('Failed to delete user. Please try again.', 'error'); // הצגת הודעת שגיאה
+            showSnackbar('Failed to delete user. Please try again.', 'error'); 
         }
     };
 

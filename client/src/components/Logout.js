@@ -10,8 +10,8 @@ const Logout = () => {
     const handleLogout = async () => {
         try {
             await logoutUser();
-            logout(); // נקה את המצב ב-Context
-            navigate('/login'); // נווט חזרה למסך ההתחברות
+            logout(); 
+            navigate('/login'); 
         } catch (error) {
             console.error('Logout failed', error);
         }

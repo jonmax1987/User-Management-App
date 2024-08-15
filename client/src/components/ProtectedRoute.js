@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children }) => {
                 const response = await validateToken();
 
                 if (response.data.status === 'success') {
-                    login(response.data.token); // עדכן את הסטטוס באפליקציה
+                    login(response.data.token);
                     setIsValidToken(true);
                 } else {
                     setIsValidToken(false);
@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children }) => {
     }, [login]);
 
     if (isLoading) {
-        return <div>Loading...</div>; // תוכל להציג ספינר כאן אם תרצה
+        return <div>Loading...</div>;
     }
 
     if (!isValidToken || !isAuthenticated) {
